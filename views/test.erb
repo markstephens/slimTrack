@@ -1,0 +1,24 @@
+<script src="/latest.js"></script>
+
+<div class="well well-large">
+  <pre><a href="javascript:// Run slimTrack.page();" id="page">slimTrack.page();</a></pre>
+  <code></code>
+</div>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#page, #event').click(function () {
+      code = $(this).parent().next('code');
+      slimTrack.page({ callback : function(response) {
+          code.html(JSON.stringify(response));
+      }});
+    });
+    
+    $('#event').click(function () {
+      slimTrack.event();
+    });
+    
+    
+  });
+</script>
