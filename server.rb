@@ -25,6 +25,9 @@ module FT
         erb :test, :layout => :documentation
       end
       
+      # =========================
+      # JS file, versioned
+      # =========================
       get %r{\/(latest|\d+)(\.min)?\.js} do |version, minified|
         version = versions.sort.last if version == 'latest'
         file = File.join(File.dirname(__FILE__), "javascript", "#{version}.js")
@@ -54,16 +57,16 @@ module FT
       # Tracking
       # =========================
       get '/page' do
-        track = Track.page(self)
+        Track.page self
       end
       get '/link' do
-  
+        Track.link self
       end
       get '/event' do
-  
+        Track.event self
       end
       get '/log' do
-  
+        Track.log self
       end
 
       # =========================

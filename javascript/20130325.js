@@ -1,24 +1,11 @@
 var slimTrack = (function() {
 
-    var xmlHttp,
-    defaultOptions = {
+    var defaultOptions = {
         clickID: "t" + (new Date()).valueOf(),
         async: true,
-        callback: function() {}
-    };
-
-    try {
-        // code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlHttp = new XMLHttpRequest();
-    } catch (e) {
-        // code for IE6, IE5
-        try {
-            xmlHttp = new ActiveXObject("Microsoft.XMLHttp");
-        } catch (e) {
-            // Silently fail
-            return false;
+        callback: function() {
         }
-    }
+    };
 
     function mergeOptions(target, options) {
         if (!options) {
@@ -52,9 +39,22 @@ var slimTrack = (function() {
 
         options = mergeOptions(options);
 
-        var async = options.async, callback = options.callback;
+        var xmlHttp, async = options.async, callback = options.callback;
         delete options.async;
         delete options.callback;
+
+        try {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlHttp = new XMLHttpRequest();
+        } catch (e) {
+            // code for IE6, IE5
+            try {
+                xmlHttp = new ActiveXObject("Microsoft.XMLHttp");
+            } catch (e) {
+                // Silently fail
+                return false;
+            }
+        }
 
         if (async) {
             xmlHttp.onreadystatechange = function() {
