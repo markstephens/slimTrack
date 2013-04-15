@@ -2,16 +2,19 @@ require 'sinatra/base'
 require 'yui/compressor'
 require 'digest/sha1'
 require File.join(File.dirname(__FILE__), 'lib', 'track')
+require 'json'
+require 'redis'
 
 module FT
   module Analytics
     class Server < Sinatra::Base
-      
       set :erb, :layout_options => { :views => 'views/layouts' }
 
       configure :development do
         enable :logging
       end
+      
+      REDIS = Redis.new(:driver => :hiredis)
       
       # =========================
       # Static
@@ -56,17 +59,17 @@ module FT
       # =========================
       # Tracking
       # =========================
-      get '/page' do
-        Track.page self
-      end
-      get '/link' do
-        Track.link self
-      end
-      get '/event' do
-        Track.event self
-      end
-      get '/log' do
-        Track.log self
+      get /\/(page|link|event|log)/ do |path|
+        track = Track.new path.to_sym, self
+        halt 500, track.errors.to_json unless track.errors.nil?
+
+        track.headers.each { |k,v|
+          logger.info "#{k}\t#{v}"
+        }
+        
+        REDIS.rpush 'tags', track.to_json
+        status 200
+        #headers # No caching
       end
 
       # =========================
