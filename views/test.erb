@@ -1,23 +1,27 @@
+<h2>Browser based test</h2>
 <div class="well well-large">
   <pre><a href="javascript:// Run slimTrack.page();" id="page">slimTrack.page();</a></pre>
-  <code></code>
+  <div class="time"></div>
+  <pre style="white-space: normal"></pre>
 </div>
 
 <script src="/latest.min.js"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script>
   $(document).ready(function() {
-    $('#page, #event').click(function () {
-      code = $(this).parent().next('code');
-      slimTrack.page({ callback : function(response) {
-          code.html(JSON.stringify(response));
-      }});
+    $('#page, #event').click(function() {
+      var start = new Date(),
+              code = $(this).parent().siblings('pre'),
+              time = $(this).parent().siblings('.time');
+
+      slimTrack.page({callback: function(response) {
+          time.html('<p>Response time: ' + ((new Date()) - start) + 'msec</p>');
+          code.text(JSON.stringify(response, undefined, 2));
+        }});
     });
-    
-    $('#event').click(function () {
+
+    $('#event').click(function() {
       slimTrack.event();
     });
-    
-    
   });
 </script>

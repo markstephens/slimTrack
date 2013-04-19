@@ -1,12 +1,27 @@
 <div class="hero-unit">
-  <a href="/latest.js">Get the latest JS.</a> (<a href="/latest.min.js">Minified</a>)
+  <h2>Get the latest JS</h2>
+  <ul>
+    <li><a href="/latest.js">BASE</a> (<a href="/latest.min.js">Minified</a>)</li>
+    <% @profiles.each { |profile| %>
+      <li><a href="/<%=profile %>/latest.js"><%=profile %></a> (<a href="/<%=profile %>/latest.min.js">Minified</a>)</li>
+    <% } %>
+  </ul>
 </div>
 
 <% unless @versions.length.zero? %>
   <h2>Versions</h2>
+  <h3>BASE</h3>
   <ul>
     <% @versions.each { |version| %>
       <li><a href="/<%=version %>.js"><%=version %>.js</a> (<a href="/<%=version %>.min.js">Minified</a>)</li>
     <% } %>
   </ul>
+  <% @profiles.each { |profile| %>
+    <h3><%=profile %></h3>
+    <ul>
+      <% @versions.each { |version| %>
+        <li><a href="/<%=profile %>/<%=version %>.js"><%=version %>.js</a> (<a href="/<%=profile %>/<%=version %>.min.js">Minified</a>)</li>
+      <% } %>
+    </ul>
+  <% } %>
 <% end %>

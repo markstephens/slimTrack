@@ -1,12 +1,10 @@
 module FT
   module Analytics
-    
     class Track
 
-      attr_reader :errors
-      
       TYPES = [:page, :link, :event, :log]
       
+      attr_reader :errors
       METHODS = [:type, :clickid, :cookies, :params, :agent, :headers, :url, :remote_ip, :date]
       METHODS.each { |m| attr_accessor m }
       
@@ -16,15 +14,15 @@ module FT
             send "#{method}=", info[method]
           }
         else
-          @type = type
-          @cookies = info.request.cookies
-          @headers = info.request.env
-          @params = JSON.parse(info.request['d'])
-          @clickid = @params["clickID"]
-          @agent = info.request.user_agent
-          @url = info.request.referrer
-          @remote_ip = info.request.ip
-          @date = Time.now
+          self.type = type
+          self.cookies = info.request.cookies
+          self.headers = info.request.env
+          self.params = info.request['d']
+          self.clickid = params.delete "clickID"
+          self.agent = info.request.user_agent
+          self.url = info.request.referrer
+          self.remote_ip = info.request.ip
+          self.date = Time.now
         end
         
         validate
@@ -53,6 +51,46 @@ module FT
         new :load, json
       end
       
+      def has_errors?
+        !@errors.nil?
+      end
+      
+      # =========================
+      # Storage
+      # =========================
+      def save
+        REDIS.rpush REDIS_LIST, to_json
+      end
+      
+      def self.load_all
+        REDIS.lrange(REDIS_LIST, 0, -1).collect { |r|
+          json = JSON.parse(r)
+          json.default_proc = proc{ |h, k| h.key?(k.to_s) ? h[k.to_s] : nil}
+          new_from_store json
+        }
+      end
+      
+      # =========================
+      # Setters
+      # =========================
+      def type=(type)
+        @type = type.to_sym
+      end
+      def date=(date)
+        @date = if date.class == Time
+          date
+        else
+          Time.parse date
+        end
+      end
+      def params=(params)
+        @params = if params.class == Hash
+          params
+        else
+          JSON.parse params
+        end
+      end
+      
       # =========================
       # Output
       # =========================
@@ -72,8 +110,8 @@ module FT
       def validate
         errors = []
         
-        errors << 'Missing clickID' if clickid.nil?
-        errors << "Type must be one of: #{TYPES.join(', ')}. Got #{type}" unless TYPES.include? type
+        errors << "Missing clickID. ClickID is required if type is #{type}." if clickid.nil? if [:page, :link, :event].include? type
+        errors << "Type must be one of: #{TYPES.join(', ')}. Got #{type} (#{type.class})." unless TYPES.include? type
         
         
         @errors = errors unless errors.length.zero?

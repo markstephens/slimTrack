@@ -1,13 +1,15 @@
 var slimTrack = (function() {
 
-    var defaultOptions = {
-        clickID: "t" + (new Date()).valueOf(),
-        async: true,
-        callback: function() {
-        }
-    };
+    var version = "**SLIMTRACKVERSION**",
+        defaultOptions = {
+            clickID: "t" + (new Date()).valueOf(),
+            async: true,
+            callback: function() {
+            }
+        };
 
     function mergeOptions(target, options) {
+        // Default is to merge with defaultOptions
         if (!options) {
             options = target;
             target = defaultOptions;
@@ -24,8 +26,9 @@ var slimTrack = (function() {
                 continue;
             }
 
-            if (copy !== undefined) {
-                target[ name ] = copy;
+            // Gets rid of missing values too
+            if (typeof copy !== "undefined" && copy !== null) {
+                target[name] = copy;
             }
         }
 
@@ -87,6 +90,7 @@ var slimTrack = (function() {
     }
 
     return {
+        version: version,
         page: page,
         link: link,
         event: event,
