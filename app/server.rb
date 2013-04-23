@@ -1,18 +1,14 @@
+require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'analytics')
+
 require 'sinatra/base'
 require 'yui/compressor'
 require 'digest/sha1'
-require File.join(File.dirname(__FILE__), 'lib', 'track')
-require 'json'
-require 'redis'
 
 module FT
   module Analytics
-    
-    REDIS = Redis.new(:driver => :hiredis)
-    REDIS_LIST = 'tags'
-    
     class Server < Sinatra::Base
-      set :erb, :layout_options => { :views => 'views/layouts' }
+      set :root, ROOT
+      set :erb, :layout_options => { :views => 'views/layouts' }, :layout => :documentation
 
       configure :development do
         enable :logging
@@ -24,8 +20,8 @@ module FT
       # =========================
       # Constants
       # =========================
-      PROFILES = Dir.glob(File.join(File.dirname(__FILE__), "javascript", "profiles", "*.js")).collect { |version| File.basename version, '.js' }
-      VERSIONS = Dir.glob(File.join(File.dirname(__FILE__), "javascript", "base", "*.js")).collect { |version| File.basename version, '.js' }
+      PROFILES = Dir.glob(File.join(ROOT, "javascript", "profiles", "*.js")).collect { |version| File.basename version, '.js' }
+      VERSIONS = Dir.glob(File.join(ROOT, "javascript", "base", "*.js")).collect { |version| File.basename version, '.js' }
     
       
       
@@ -36,16 +32,17 @@ module FT
       get '/' do
         @profiles = PROFILES
         @versions = VERSIONS
-        erb :index, :layout => :documentation
+        erb :index
       end
       
-      get /\/(documentation|test|redis|runner)/ do |page|
+      get /\/(documentation|test|redis|runner|failures)/ do |page|
         case page
-        when 'redis' then @redis = Track.load_all
-        when 'runner' then @runner = []
+        when 'redis' then @tags = FT::Analytics::tags
+        when 'runner' then @logs = FT::Analytics::logs
+        when 'failures' then @failures = FT::Analytics::failures
         end
         
-        erb page.to_sym, :layout => :documentation
+        erb page.to_sym
       end
       
       
@@ -56,8 +53,8 @@ module FT
       # =========================
       get Regexp.new "(/#{PROFILES.collect{ |p| Regexp.escape p }.join('|')})?/(latest|#{VERSIONS.collect{ |v| Regexp.escape v }.join('|')})(\.min)?\.js" do |profile, version, minified|
         version = VERSIONS.sort.last if version == 'latest'
-        base_file = File.join(File.dirname(__FILE__), "javascript", "base", "#{version}.js")
-        profile_file = File.join(File.dirname(__FILE__), "javascript", "profiles", "#{profile}.js")
+        base_file = File.join(ROOT, "javascript", "base", "#{version}.js")
+        profile_file = File.join(ROOT, "javascript", "profiles", "#{profile}.js")
         
         halt 404, {'Content-Type' => 'text/plain'}, 'Not found' unless File.exists? base_file
         halt 404, {'Content-Type' => 'text/plain'}, 'Not found' unless File.exists? profile_file unless profile.nil?
@@ -89,7 +86,7 @@ module FT
       # =========================
       # Tracking
       # =========================
-      get /\/(page|link|event|log)/ do |path|
+      get Regexp.new "/(#{TYPES.collect{ |t| Regexp.escape t }.join('|')})" do |path|
         track = Track.new path.to_sym, self
         halt 500, track.errors.to_json if track.has_errors?
 

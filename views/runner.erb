@@ -1,1 +1,9 @@
 <h2>Runner log</h2>
+<p><%=@logs.length %> logs.</p>
+<% unless @logs.length.zero? %>
+  <ul>
+    <% @logs.each { |log| %>
+      <li><%= log %></li>
+    <% } %>
+  </ul>
+<% end %>

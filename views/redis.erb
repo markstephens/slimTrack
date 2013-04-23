@@ -1,33 +1,35 @@
-<h2>Redis contents</h2>
-<p><%=@redis.length %> tags in Redis</p>
-<ol>
-  <% @redis.each { |track| %>
-    <li>
-      <code>
-        <%=track.type.upcase %>:
-        <%= track.url %>      
-        <%=track.date %>
-      </code>
-      <table class="table table-condensed table-striped" style="font-size: smaller">
-        <tr><td style="width:90px">ClickID</td><td><%= track.clickid %></td></tr>
-        <tr><td>URL</td><td><%= track.url %></td></tr>
-        <tr><td>Params (<%= track.params.length %>)</td><td><%= track.params.inspect %></td></tr>
-        <tr><td>Cookies (<%= track.cookies.length %>)</td><td><%= track.cookies.keys.join(", ") %></td></tr>
-        <tr><td>UA</td><td><%= track.agent %></td></tr>
-        <tr><td>Headers (<%= track.headers.length %>)</td><td><%= track.headers.keys.join(", ") %></td></tr>
-        <tr><td>Remote IP</td><td><%= track.remote_ip %></td></tr>
-      </table>
-    </li>
-  <% } %>
-</ol>
+<h2>Redis queue</h2>
+<p><%=@tags.length %> tags in Redis.</p>
+<% unless @tags.length.zero? %>
+  <ol>
+    <% @tags.each { |tag| %>
+      <li>
+        <code>
+          <%=tag.type.upcase %>:
+          <%= tag.url %>      
+          <%=tag.date %>
+        </code>
+        <table class="table table-condensed table-striped" style="font-size: smaller">
+          <tr><td style="width:90px">ClickID</td><td><%= tag.clickid %></td></tr>
+          <tr><td>URL</td><td><%= tag.url %></td></tr>
+          <tr><td>Params (<%= tag.params.length %>)</td><td><%= tag.params.inspect %></td></tr>
+          <tr><td>Cookies (<%= tag.cookies.length %>)</td><td><%= tag.cookies.keys.join(", ") %></td></tr>
+          <tr><td>UA</td><td><%= tag.agent %></td></tr>
+          <tr><td>Headers (<%= tag.headers.length %>)</td><td><%= tag.headers.keys.join(", ") %></td></tr>
+          <tr><td>Remote IP</td><td><%= tag.remote_ip %></td></tr>
+        </table>
+      </li>
+    <% } %>
+  </ol>
 
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script>
-  $(document).ready(function() {
-    $('table').hide();
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('table').hide();
 
-    $('code').click(function() {
-      $(this).next('table').toggle();
+      $('code').css('cursor', 'pointer').click(function() {
+        $(this).next('table').toggle();
+      });
     });
-  });
-</script>
+  </script>
+<% end %>

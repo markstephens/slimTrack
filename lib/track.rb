@@ -1,9 +1,7 @@
 module FT
   module Analytics
     class Track
-
-      TYPES = [:page, :link, :event, :log]
-      
+    
       attr_reader :errors
       METHODS = [:type, :clickid, :cookies, :params, :agent, :headers, :url, :remote_ip, :date]
       METHODS.each { |m| attr_accessor m }
@@ -48,7 +46,10 @@ module FT
       end
       
       def self.new_from_store(json)
-        new :load, json
+        hash = (json.class == Hash ? json : JSON.parse(json))
+        hash.default_proc = proc{ |h, k| h.key?(k.to_s) ? h[k.to_s] : nil}
+        
+        new :load, hash
       end
       
       def has_errors?
@@ -59,15 +60,7 @@ module FT
       # Storage
       # =========================
       def save
-        REDIS.rpush REDIS_LIST, to_json
-      end
-      
-      def self.load_all
-        REDIS.lrange(REDIS_LIST, 0, -1).collect { |r|
-          json = JSON.parse(r)
-          json.default_proc = proc{ |h, k| h.key?(k.to_s) ? h[k.to_s] : nil}
-          new_from_store json
-        }
+        FT::Analytics::tag to_json
       end
       
       # =========================

@@ -1,0 +1,9 @@
+<h2>Failures</h2>
+<p><%=@failures.length %> logs.</p>
+<% unless @failures.length.zero? %>
+  <ul>
+    <% @failures.each { |log| %>
+      <li><%= log %></li>
+    <% } %>
+  </ul>
+<% end %>
