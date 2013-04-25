@@ -13,18 +13,14 @@ module FT
         @tags = FT::Analytics::pop_tags
         
         # merge similar tags
-        # merge
+        @tags.merge
         # add additional data
         # send tags to correct location
         # delete tag from store
         
         FT::Analytics::log "Processed #{tags.length} tags in #{Time.now - start}."
       end
-      
-      private
-      
-       
-      
+            
     end
   end
 end

@@ -25,6 +25,8 @@ var Track = (function(slimTrack) {
 
         return test !== "" ? test : null;
     }
+    
+    // TODO Storage for stuff to run on next page.
 
     return {
         page: function() {

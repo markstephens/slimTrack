@@ -4,6 +4,7 @@ require 'redis'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 require File.join(ROOT, 'lib', 'track')
+require File.join(ROOT, 'lib', 'trackList')
 
 module FT  
   module Analytics
@@ -14,7 +15,7 @@ module FT
     FAILURE_LIST = 'failure'
     CAPI_STORE = 'capi'
     QUOVA_STORE = 'quova'
-    TYPES = [:page, :link, :event, :log]
+    TYPES = [:page, :data, :link, :event, :log]
 
     # STORAGE
     def self.log(message)
@@ -30,9 +31,13 @@ module FT
     end
     
     def self.tags
-      REDIS.lrange(TAG_LIST, 0, -1).collect { |tag|
-        Track.new_from_store tag
+      tags = TrackList.new
+      
+      REDIS.lrange(TAG_LIST, 0, -1).each { |tag|
+        tags << Track.new_from_store(tag)
       }
+      
+      tags
     end
     
     def self.failure(json)
@@ -44,13 +49,13 @@ module FT
     end
     
     def self.pop_tags
-      # This should need to be blocking or aware of conflicts as redis doesn't work that way.
+      # This shouldn't need to be blocking or aware of conflicts as redis doesn't work that way.
       # Index starts at 1!
       raw_tags = (1..REDIS.llen(TAG_LIST)).collect {
         REDIS.lpop TAG_LIST
       }
       
-      tags = []
+      tags = TrackList.new
       
       raw_tags.each { |tag|
         begin

@@ -1,4 +1,4 @@
-<h2>Redis queue</h2>
+<h2>Queued tags</h2>
 <p><%=@tags.length %> tags in Redis.</p>
 <% unless @tags.length.zero? %>
   <ol>
@@ -14,7 +14,7 @@
           <tr><td>URL</td><td><%= tag.url %></td></tr>
           <tr><td>Params (<%= tag.params.length %>)</td><td><%= tag.params.inspect %></td></tr>
           <tr><td>Cookies (<%= tag.cookies.length %>)</td><td><%= tag.cookies.keys.join(", ") %></td></tr>
-          <tr><td>UA</td><td><%= tag.agent %></td></tr>
+          <tr><td>UAgent</td><td><%= tag.agent %></td></tr>
           <tr><td>Headers (<%= tag.headers.length %>)</td><td><%= tag.headers.keys.join(", ") %></td></tr>
           <tr><td>Remote IP</td><td><%= tag.remote_ip %></td></tr>
         </table>

@@ -90,9 +90,9 @@ module FT
         track = Track.new path.to_sym, self
         halt 500, track.errors.to_json if track.has_errors?
 
-        track.headers.each { |k,v|
-          logger.info "#{k}\t#{v}"
-        }
+        #track.headers.each { |k,v|
+        #  logger.info "#{k}\t#{v}"
+        #}
         
         track.save
         

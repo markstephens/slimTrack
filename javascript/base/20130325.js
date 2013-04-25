@@ -1,18 +1,17 @@
 var slimTrack = (function() {
 
     var version = "**SLIMTRACKVERSION**",
-        defaultOptions = {
-            clickID: "t" + (new Date()).valueOf(),
-            async: true,
-            callback: function() {
-            }
-        };
+            defaultOptions = {
+        clickID: "t" + (new Date()).valueOf(),
+        async: true,
+        callback: function() {
+        }
+    };
 
     function mergeOptions(target, options) {
         // Default is to merge with defaultOptions
         if (!options) {
-            options = target;
-            target = defaultOptions;
+            options = defaultOptions;
         }
 
         var name, src, copy;
@@ -42,9 +41,15 @@ var slimTrack = (function() {
 
         options = mergeOptions(options);
 
-        var xmlHttp, async = options.async, callback = options.callback;
+        var xmlHttp, async = options.async, callback = options.callback, key, query_string = [];
         delete options.async;
         delete options.callback;
+
+        for (key in options) {
+            if (options.hasOwnProperty(key)) {
+                query_string.push(encodeURIComponent(key) + "=" + encodeURIComponent(options[key]))
+            }
+        }
 
         try {
             // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -54,7 +59,7 @@ var slimTrack = (function() {
             try {
                 xmlHttp = new ActiveXObject("Microsoft.XMLHttp");
             } catch (e) {
-                // Silently fail
+                // TODO Silently fail or image??
                 return false;
             }
         }
@@ -65,7 +70,7 @@ var slimTrack = (function() {
             };
         }
 
-        xmlHttp.open("GET", url + '?d=' + JSON.stringify(options), async);
+        xmlHttp.open("GET", url + '?' + query_string.join('&'), async);
         xmlHttp.send();
         if (!async) {
             callback(xmlHttp);
@@ -75,6 +80,10 @@ var slimTrack = (function() {
     function page(options) {
         send('/page', mergeOptions({async: false}, options));
         return this;
+    }
+
+    function data(options) {
+        send('/data', options);
     }
 
     function link(options) {
@@ -92,6 +101,7 @@ var slimTrack = (function() {
     return {
         version: version,
         page: page,
+        data: data,
         link: link,
         event: event,
         log: log,

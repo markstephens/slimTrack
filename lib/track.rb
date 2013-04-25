@@ -15,10 +15,10 @@ module FT
           self.type = type
           self.cookies = info.request.cookies
           self.headers = info.request.env
-          self.params = info.request['d']
+          self.params = info.request.params
           self.clickid = params.delete "clickID"
           self.agent = info.request.user_agent
-          self.url = info.request.referrer
+          self.url = (params.has_key?("url") ? params.delete("url") : info.request.referrer)
           self.remote_ip = info.request.ip
           self.date = Time.now
         end
@@ -83,6 +83,13 @@ module FT
           JSON.parse params
         end
       end
+      def url=(url)
+        @url = URI(url)
+      end
+      
+      def merge(other_track)
+        params.merge other_track.params
+      end
       
       # =========================
       # Output
@@ -90,6 +97,12 @@ module FT
       def to_json
         METHODS.inject({}) { |h,method| h[method] = send method; h }.to_json
       end
+      
+      def to_s
+        "#<FT::Analytics::Track:#{object_id} @type=#{type}, @clickid=#{clickid}, @date=#{date}, @url=#{url}>"
+      end
+      
+      alias_method :inspect, :to_s
       
       # =========================
       # For testing
@@ -103,9 +116,9 @@ module FT
       def validate
         errors = []
         
+        errors << "Type must be one of: #{TYPES.join(', ')}. Got '#{type}'." unless TYPES.include? type
         errors << "Missing clickID. ClickID is required if type is #{type}." if clickid.nil? if [:page, :link, :event].include? type
-        errors << "Type must be one of: #{TYPES.join(', ')}. Got #{type} (#{type.class})." unless TYPES.include? type
-        
+        errors << "URL is invalid: '#{url}'." unless url.scheme and url.host and url.path
         
         @errors = errors unless errors.length.zero?
       end
