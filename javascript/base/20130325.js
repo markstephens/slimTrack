@@ -1,6 +1,6 @@
 var slimTrack = (function() {
-
     var version = "**SLIMTRACKVERSION**",
+        pageSent = false,
             defaultOptions = {
         clickID: "t" + (new Date()).valueOf(),
         async: true,
@@ -8,12 +8,12 @@ var slimTrack = (function() {
         }
     };
 
-    function mergeOptions(target, options) {
-        // Default is to merge with defaultOptions
+    function clone(target, options) {
         if (!options) {
-            options = defaultOptions;
+            options = target;
+            target = {};
         }
-
+        
         var name, src, copy;
 
         for (name in options) {
@@ -34,6 +34,16 @@ var slimTrack = (function() {
         return target;
     }
 
+    function mergeOptions(target, options) {
+        // Default is to merge with defaultOptions
+        if (!options) {
+            options = target;
+            target = clone(defaultOptions);
+        }
+        
+        return clone(target, options);
+    }
+    
     function send(url, options) {
         if (typeof options === "undefined") {
             options = {};
@@ -41,13 +51,14 @@ var slimTrack = (function() {
 
         options = mergeOptions(options);
 
-        var xmlHttp, async = options.async, callback = options.callback, key, query_string = [];
-        delete options.async;
-        delete options.callback;
-
-        for (key in options) {
-            if (options.hasOwnProperty(key)) {
-                query_string.push(encodeURIComponent(key) + "=" + encodeURIComponent(options[key]))
+        var params = clone(options), // Stop issue when deleting params and JS holding objects in reference
+                xmlHttp, async = options.async, callback = options.callback, key, query_string = [];
+        delete params.async;
+        delete params.callback;
+        
+        for (key in params) {
+            if (params.hasOwnProperty(key)) {
+                query_string.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]))
             }
         }
 
@@ -78,7 +89,11 @@ var slimTrack = (function() {
     }
 
     function page(options) {
+        if(pageSent) {
+            throw 'PageTrack already sent';
+        }
         send('/page', mergeOptions({async: false}, options));
+        pageSent = true;
         return this;
     }
 
