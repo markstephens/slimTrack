@@ -9,6 +9,12 @@ require File.join(ROOT, 'lib', 'trackList')
 module FT  
   module Analytics
 
+    # =========================
+    # Constants
+    # =========================
+    PROFILES = Dir.glob(File.join(ROOT, "javascript", "profiles", "*.js")).collect { |version| File.basename version, '.js' }
+    VERSIONS = Dir.glob(File.join(ROOT, "javascript", "base", "*.js")).collect { |version| File.basename version, '.js' }
+    
     REDIS = Redis.new(:driver => :hiredis)
     TAG_LIST = 'tags'
     LOG_LIST = 'logs'

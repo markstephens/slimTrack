@@ -1,7 +1,7 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'analytics')
+require File.join(ROOT, 'lib', 'javascript')
 
 require 'sinatra/base'
-require 'yui/compressor'
 require 'digest/sha1'
 
 module FT
@@ -14,15 +14,6 @@ module FT
         enable :logging
       end
       
-      
-      
-      
-      # =========================
-      # Constants
-      # =========================
-      PROFILES = Dir.glob(File.join(ROOT, "javascript", "profiles", "*.js")).collect { |version| File.basename version, '.js' }
-      VERSIONS = Dir.glob(File.join(ROOT, "javascript", "base", "*.js")).collect { |version| File.basename version, '.js' }
-    
       
       
       
@@ -51,33 +42,23 @@ module FT
       # =========================
       # JS file, profiled, versioned
       # =========================
-      get Regexp.new "(/#{PROFILES.collect{ |p| Regexp.escape p }.join('|')})?/(latest|#{VERSIONS.collect{ |v| Regexp.escape v }.join('|')})(\.min)?\.js" do |profile, version, minified|
-        version = VERSIONS.sort.last if version == 'latest'
-        base_file = File.join(ROOT, "javascript", "base", "#{version}.js")
-        profile_file = File.join(ROOT, "javascript", "profiles", "#{profile}.js")
+      get Regexp.new "/?(#{PROFILES.collect{ |p| Regexp.escape p }.join('|')})?/(latest|#{VERSIONS.collect{ |v| Regexp.escape v }.join('|')})(\.min)?\.js" do |profile, version, minified|
+        begin
+          js = FT::Analytics::Javascript.new :version => version, :profile => profile, :minified => minified
+        rescue => e
+          halt 404, {'Content-Type' => 'text/plain'}, e.message
+        end
         
-        halt 404, {'Content-Type' => 'text/plain'}, 'Not found' unless File.exists? base_file
-        halt 404, {'Content-Type' => 'text/plain'}, 'Not found' unless File.exists? profile_file unless profile.nil?
-        
-        file_content = File.open(base_file).read
-        file_content += File.open(profile_file).read unless profile.nil?
-        file_content.sub!("**SLIMTRACKVERSION**", [(profile || 'BASE'),version,('min' if minified)].compact.join('-'))
-
         content_type 'text/javascript'
         
         # Caching
         if settings.production?
           expires 31536000, :public, :must_revalidate # 1 year
-          last_modified File.stat(file).mtime
-          etag Digest::SHA1.hexdigest(file_content)
+          last_modified js.last_modified
+          etag Digest::SHA1.hexdigest(js.to_s)
         end
         
-        if minified.nil?
-          body file_content
-        else
-          compressor = YUI::JavaScriptCompressor.new :munge => true
-          body compressor.compress(file_content)
-        end
+        body js.to_s
       end
       
       
@@ -106,9 +87,9 @@ module FT
       # =========================
       # Error pages
       # =========================
-      not_found do
-        'This is nowhere to be found.'
-      end
+#      not_found do
+#        'This is nowhere to be found.'
+#      end
 
       error do
         'Sorry there was a nasty error - ' + env['sinatra.error'].name
