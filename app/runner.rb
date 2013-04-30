@@ -12,6 +12,11 @@ module FT
         # Get all tags and remove them from storage (in-case more than one runner running)
         @tags = FT::Analytics::pop_tags
         
+        if @tags.length.zero?
+          FT::Analytics::log "Nothing to do."
+          exit
+        end
+        
         # merge similar tags
         @tags.merge
         # add additional data

@@ -52,6 +52,8 @@ module FT
           }
           
           merged
+        else
+          self
         end
       end
       
