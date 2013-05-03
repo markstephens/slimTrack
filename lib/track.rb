@@ -1,9 +1,9 @@
 module FT
   module Analytics
-    class Track
+    class Track  
     
       attr_reader :errors
-      METHODS = [:type, :clickid, :cookies, :params, :agent, :headers, :url, :remote_ip, :date]
+      METHODS = [:type, :clickid, :cookies, :params, :agent, :headers, :url, :remote_ip, :date, :channel, :meta, :user]
       METHODS.each { |m| attr_accessor m }
       
       def initialize(type, info)
@@ -21,6 +21,15 @@ module FT
           self.url = (params.has_key?("url") ? params.delete("url") : info.request.referrer)
           self.remote_ip = info.request.ip
           self.date = Time.now
+          
+          self.meta = [:sitemap, :edition, :title, :dfp_site, :dfp_zone, :dfp_targeting, :section, :page].inject({}) { |h,k|
+            h[k] = ''
+            h
+          }
+          
+          self.user = {
+            :sub_type => '',:country => '', :reg_area => '', :metro_area => ''
+          }
         end
         
         validate
@@ -84,11 +93,22 @@ module FT
         end
       end
       def url=(url)
-        @url = URI(url)
+        @url = URI(url).to_s
       end
       
       def merge(other_track)
-        params.merge other_track.params
+        params.merge! other_track.params
+      end
+      
+      # =========================
+      # Getters
+      # =========================
+      def ip
+        (params.has_key?("overrideIpAddress") ? params["overrideIpAddress"] : info.request.ip)
+      end
+      
+      def url
+        URI "#{@url}?#{URI.encode_www_form params}"
       end
       
       # =========================
@@ -97,12 +117,22 @@ module FT
       def to_json
         METHODS.inject({}) { |h,method| h[method] = send method; h }.to_json
       end
-      
+            
       def to_s
         "#<FT::Analytics::Track:#{object_id} @type=#{type}, @clickid=#{clickid}, @date=#{date}, @url=#{url}>"
       end
-      
       alias_method :inspect, :to_s
+      
+      # =========================
+      # For runner
+      # =========================
+      def uuid
+        if params.has_key? :uuid
+          params[:uuid]
+        elsif /\/cms\/s?\/?\d?\/?([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})/.match url.to_s
+          $1
+        end
+      end
       
       # =========================
       # For testing

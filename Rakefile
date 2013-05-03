@@ -23,6 +23,14 @@ end
 
 
 
+desc "Start a console with slimTrack preloaded."
+task :console do
+  puts "CONSOLE\n"
+  system "bundle exec ruby app/console.rb"
+end
+
+
+
 desc "Show versions and profiles available for build."
 task :versions do
   puts "VERSIONS AND PROFILES\n"

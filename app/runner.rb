@@ -1,4 +1,5 @@
 require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'analytics')
+require File.join(ROOT, 'lib', 'capi')
 
 module FT
   module Analytics
@@ -10,18 +11,41 @@ module FT
         start = Time.now
         
         # Get all tags and remove them from storage (in-case more than one runner running)
-        @tags = FT::Analytics::pop_tags
+        tags = FT::Analytics::pop_tags
         
-        if @tags.length.zero?
+        if tags.length.zero?
           FT::Analytics::log "Nothing to do."
           exit
         end
         
         # merge similar tags
-        @tags.merge
+        tags = tags.merge
+        
         # add additional data
-        # send tags to correct location
-        # delete tag from store
+        tags.each { |track|
+          #begin
+          # cAPI
+          capi = FT::Analytics::Capi.get track
+            
+          puts capi.first.inspect
+          
+          [:sitemap, :edition, :title, :dfp_site, :dfp_zone, :dfp_targeting, :section, :page].each { |m|
+            track.meta[m] = capi.first[m]
+          } if capi
+            
+          puts "track.meta #{track.meta.inspect}"
+            
+          # Quova
+          #quova track.ip
+            
+          FT::Analytics::log "I would send #{track.url}"
+          #rescue => e
+          #  FT::Analytics::log "ERROR: #{e.message}"
+          #  FT::Analytics::failure track
+          #end
+        
+          # send tags to correct location
+        }
         
         FT::Analytics::log "Processed #{tags.length} tags in #{Time.now - start}."
       end

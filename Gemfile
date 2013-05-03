@@ -7,5 +7,10 @@ gem 'sinatra'
 gem 'thin'
 gem 'yui-compressor'
 
-gem "redis", "~> 3.0.1"
-gem "hiredis", "~> 0.4.5" # HiRedis = extra performance!
+# Tracking tag storage
+gem 'redis', '~> 3.0.1'
+gem 'hiredis', '~> 0.4.5' # HiRedis = extra performance!
+
+# cAPI storage
+gem 'mongo'
+gem 'bson_ext' # bson_ext = extra performance!
