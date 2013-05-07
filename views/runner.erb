@@ -1,7 +1,7 @@
 <h2>Runner log</h2>
 <p><%=@logs.length %> logs.</p>
 <% unless @logs.length.zero? %>
-  <ul>
+  <ul style="font-family: courier">
     <% @logs.each { |log| %>
       <li><%= log %></li>
     <% } %>
