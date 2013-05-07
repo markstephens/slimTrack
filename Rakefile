@@ -15,6 +15,14 @@ end
 
 
 
+desc "Start mongo storage."
+task :mongo do
+  puts "MONGO\n"
+  system 'mongod --config /usr/local/mongodb/mongod.conf'
+end
+
+
+
 desc "Start the runner, and process tags."
 task :runner do
   puts "RUNNER\n"

@@ -1,5 +1,6 @@
 require 'time'
 require 'json'
+require 'rack'
 require 'redis'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))

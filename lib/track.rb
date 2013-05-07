@@ -7,6 +7,9 @@ module FT
       METHODS.each { |m| attr_accessor m }
       
       def initialize(type, info)
+        @meta = {}
+        @user = {}
+        
         if type == :load
           METHODS.each { |method|
             send "#{method}=", info[method]
@@ -21,15 +24,6 @@ module FT
           self.url = (params.has_key?("url") ? params.delete("url") : info.request.referrer)
           self.remote_ip = info.request.ip
           self.date = Time.now
-          
-          self.meta = [:sitemap, :edition, :title, :dfp_site, :dfp_zone, :dfp_targeting, :section, :page].inject({}) { |h,k|
-            h[k] = ''
-            h
-          }
-          
-          self.user = {
-            :sub_type => '',:country => '', :reg_area => '', :metro_area => ''
-          }
         end
         
         validate
@@ -93,7 +87,9 @@ module FT
         end
       end
       def url=(url)
-        @url = URI(url).to_s
+        u = URI(url)
+        self.params.merge Rack::Utils.parse_query(u.query) if u.query
+        @url = "#{u.scheme}://#{u.host}#{u.path}"
       end
       
       def merge(other_track)
@@ -103,14 +99,30 @@ module FT
       # =========================
       # Getters
       # =========================
+      def channel
+        # TODO logic to determine channel
+        'desktop'
+      end
+      
       def ip
         (params.has_key?("overrideIpAddress") ? params["overrideIpAddress"] : info.request.ip)
       end
       
-      def url
-        URI "#{@url}?#{URI.encode_www_form params}"
+      def meta
+        @meta unless @meta.values.length.zero? unless @meta.nil?
       end
       
+      def user
+        @user unless @user.values.length.zero? unless @user.nil?
+      end
+      
+      def params
+        p = @params
+        p.merge! meta if meta
+        p.merge! user if user
+        p
+      end
+            
       # =========================
       # Output
       # =========================
@@ -148,7 +160,7 @@ module FT
         
         errors << "Type must be one of: #{TYPES.join(', ')}. Got '#{type}'." unless TYPES.include? type
         errors << "Missing clickID. ClickID is required if type is #{type}." if clickid.nil? if [:page, :link, :event].include? type
-        errors << "URL is invalid: '#{url}'." unless url.scheme and url.host and url.path
+        #errors << "URL is invalid: '#{url}'." unless url.scheme and url.host and url.path
         
         @errors = errors unless errors.length.zero?
       end
