@@ -1,2 +1,52 @@
 <h2>Documentation</h2>
+<p>A proof of concept to see if we can move a lot of tracking code server-side. For the following reasons:</p>
+<ul>
+  <li>Vastly reduced code size on the frontend.</li>
+  <li>Less processing work to be done by the browser.</li>
+  <li>Simpler interface, with fewer functions available.</li>
+  <li>Smaller traffic size between client and server for each tracking call.</li>
+  <li>Re-use across all channels, Desktop, webapp, epaper, flipboard, future product x.</li>
+  <li>Unified interface means we're quicker to react and make changes.</li>
+  <li>Data can be sent to multiple datamarts; iJento, GA, Splunk etc.</li>
+</ul>
 <p><img src="/images/SlimTrack-diagram.svg" alt="SlimTrack processing diagram" class="img-polaroid" /></p>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Ruby (Preferably 2.0.0 or latest 1.9)</li>
+  <li>Bundler (<code>gem install bundler</code>)</li>
+  <li>Redis (<a href="http://redis.io/download">http://redis.io/download</a>)</li>
+  <li>MongoDB (<a href="http://www.mongodb.org/downloads">http://www.mongodb.org/downloads</a>)</li>
+</ul>
+
+<h3>Installation locally</h3>
+<ul>
+  <li>Clone repo</li>
+  <li><code>[sudo] bundle install</code></li>
+</ul>
+
+<h3>Running locally</h3>
+<p>In three separate shells</p>
+<ul>
+  <li>
+    <code>$ rake redis</code> (unless it's running as a service)</li>
+  <li>
+    <code>$ rake mongo</code> (unless it's running as a service)</li>
+  <li>
+    <code>$ rake server</code> (to start the frontent server) - goto <a href="http://localhost:5000">http://localhost:5000</a>
+  </li>
+  <li>
+    <code>$ rake runner</code> (to process the tags)</li>
+</ul>
+
+<h3>Build tools and tasks</h3>
+<pre>$ rake -T
+rake build     # Buld a version of JavaScript
+rake console   # Start a console with slimTrack preloaded.
+rake deploy    # Deploy JavaScript (to Maven?)
+rake mongo     # Start mongo storage.
+rake redis     # Start redis storage.
+rake runner    # Start the runner, and process tags.
+rake server    # Start the webserver.
+rake versions  # Show versions and profiles available for build.
+</pre>
