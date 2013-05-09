@@ -16,7 +16,13 @@ module FT
     PROFILES = Dir.glob(File.join(ROOT, "javascript", "profiles", "*.js")).collect { |version| File.basename version, '.js' }
     VERSIONS = Dir.glob(File.join(ROOT, "javascript", "base", "*.js")).collect { |version| File.basename version, '.js' }
     
-    REDIS = Redis.new(:driver => :hiredis)
+    REDIS = if ENV["REDISCLOUD_URL"]
+      redis_uri = URI.parse ENV["REDISCLOUD_URL"]
+      Redis.new :driver => :hiredis, :host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password
+    else
+      Redis.new :driver => :hiredis
+    end
+    
     TAG_LIST = 'tags'
     LOG_LIST = 'logs'
     FAILURE_LIST = 'failure'

@@ -4,7 +4,14 @@ require 'bson'
 module FT
   module Analytics
     
-    MONGODB = Mongo::MongoClient.new("localhost", 27017).db("capi")
+    MONGODB = if ENV['MONGOLAB_URI']
+      uri  = URI.parse ENV['MONGOLAB_URI']
+      conn = Mongo::Connection.from_uri(ENV['MONGOLAB_URI'])
+      conn.db(uri.path.gsub(/^\//, ''))
+    else
+      Mongo::MongoClient.new("localhost", 27017).db("capi")
+    end
+    
     MONGO_COLLECTION = MONGODB.collection("pages")
     
     class Capi
@@ -25,9 +32,9 @@ module FT
       
       def self.get(track)
         data = if track.uuid
-          MONGO_COLLECTION.find 'uuid' => track.uuid
+          MONGO_COLLECTION.find_one 'uuid' => track.uuid
         else
-          MONGO_COLLECTION.find 'url' => track.url
+          MONGO_COLLECTION.find_one 'url' => track.url
         end
         
         # If no data, get from capi?
