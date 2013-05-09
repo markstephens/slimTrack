@@ -1,9 +1,10 @@
 <h2>Runner log</h2>
 <p><%=@logs.length %> logs.</p>
 <% unless @logs.length.zero? %>
-  <ul style="font-family: courier">
-    <% @logs.each { |log| %>
-      <li><%= log %></li>
-    <% } %>
-  </ul>
+  <table class="table table-bordered table-condensed table-hover" style="font-family: courier"><tbody>
+      <% @logs.each { |log| %>
+        <% date,url = log.split ': '  %>
+        <tr><td><%= date %></td><td><%= url %></td></tr>
+      <% } %>
+    </tbody></table>
 <% end %>

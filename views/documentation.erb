@@ -36,6 +36,9 @@
     <code>$ rake server</code> (to start the frontent server) - goto <a href="http://localhost:5000">http://localhost:5000</a>
   </li>
   <li>
+    <code>$ rake server testsync=true</code> (to start the frontent server with a 2 second delay on every request)
+  </li>
+  <li>
     <code>$ rake runner</code> (to process the tags)</li>
 </ul>
 
@@ -50,3 +53,17 @@ rake runner    # Start the runner, and process tags.
 rake server    # Start the webserver.
 rake versions  # Show versions and profiles available for build.
 </pre>
+
+<h3>Building JS for deployment in other apps</h3>
+<ul>
+  <li>
+    <code>$ rake build</code> Build latest, base JS.</li>
+  <li>
+    <code>$ rake build profile=ftcom</code> Build latest for a certain profile e.g. ftcom (use <code>rake versions</code> for a list of profiles)</li>
+  <li>
+    <code>$ rake build version=latest</code> Build the base JS at a certain version (use <code>rake versions</code> for a list of versions)</li>
+</li>
+<li>
+  <code>$ rake build profile=ftcom version=latest</code> Build a specific version and a specific profile (use <code>rake versions</code> for a list of versions)</li>
+</li>
+</ul>
