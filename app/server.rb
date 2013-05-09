@@ -77,6 +77,9 @@ module FT
         
         track.save
         
+        # Wait for 2 secs, for testing async
+        sleep 2 if ENV['testsync']
+        
         status 200
         #headers # TODO No caching
       end
