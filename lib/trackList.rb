@@ -27,11 +27,16 @@ module FT
          
             # Merge page and data
             page = to_merge.find_by_type(:page).first
-            to_merge.find_by_type(:data).each { |data|
-              page.merge data
-            }
             
-            merged << page
+            if page.nil? # No page tag, could've been sent on previous batch
+              merged += to_merge.find_by_type(:data)
+            else
+              to_merge.find_by_type(:data).each { |data|
+                page.merge data
+              }
+            
+              merged << page
+            end
                         
             # Events
             events = to_merge.find_by_type(:event)

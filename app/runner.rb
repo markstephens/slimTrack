@@ -28,17 +28,17 @@ module FT
           # cAPI
           if track.type == :page
             capi = FT::Analytics::Capi.get track
-            data = capi.first
-            if data
-              data.delete 'url'
-              track.meta = data
+            if capi
+              capi.delete 'url'
+              capi.delete '_id'
+              track.meta = capi
             end
           end
             
           # Quova
           #quova track.ip
             
-          FT::Analytics::log [track.clickid, track.channel, track.url, Rack::Utils.build_query(track.params)].join('-')
+          FT::Analytics::log [track.clickid, track.channel, track.url, Rack::Utils.build_query(track.params)].join("\n")
           #rescue => e
           #  FT::Analytics::log "ERROR: #{e.message}"
           #  FT::Analytics::failure track
