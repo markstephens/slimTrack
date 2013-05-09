@@ -1,0 +1,22 @@
+<h1>Downloads</h1>
+
+<% unless @versions.length.zero? %>
+  <div class="well">
+    <h2>BASE</h2>
+    <ul>
+      <% @versions.each { |version| %>
+        <li><a href="/<%=version %>.js"><%=version %>.js</a> (<a href="/<%=version %>.min.js">Minified</a>)</li>
+      <% } %>
+    </ul>
+  </div>
+  <% @profiles.each { |profile| %>
+    <div class="well">
+      <h2><%=profile %></h2>
+      <ul>
+        <% @versions.each { |version| %>
+          <li><a href="/<%=profile %>/<%=version %>.js"><%=version %>.js</a> (<a href="/<%=profile %>/<%=version %>.min.js">Minified</a>)</li>
+        <% } %>
+      </ul>
+    </div>
+  <% } %>
+<% end %>

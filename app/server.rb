@@ -26,8 +26,9 @@ module FT
         erb :index
       end
       
-      get /\/(documentation|test|redis|runner|failures)/ do |page|
+      get /\/(downloads|documentation|test|redis|runner|failures)/ do |page|
         case page
+        when 'downloads' then @profiles = PROFILES; @versions = VERSIONS
         when 'redis' then @tags = FT::Analytics::tags
         when 'runner' then @logs = FT::Analytics::logs
         when 'failures' then @failures = FT::Analytics::failures

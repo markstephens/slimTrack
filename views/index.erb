@@ -8,20 +8,14 @@
   </ul>
 </div>
 
-<% unless @versions.length.zero? %>
-  <h2>Versions</h2>
-  <h3>BASE</h3>
-  <ul>
-    <% @versions.each { |version| %>
-      <li><a href="/<%=version %>.js"><%=version %>.js</a> (<a href="/<%=version %>.min.js">Minified</a>)</li>
-    <% } %>
-  </ul>
-  <% @profiles.each { |profile| %>
-    <h3><%=profile %></h3>
-    <ul>
-      <% @versions.each { |version| %>
-        <li><a href="/<%=profile %>/<%=version %>.js"><%=version %>.js</a> (<a href="/<%=profile %>/<%=version %>.min.js">Minified</a>)</li>
-      <% } %>
-    </ul>
-  <% } %>
-<% end %>
+<h2>SlimTrack Proof of Concept</h2>
+<p>A proof of concept to see if we can move a lot of tracking code server-side. For the following reasons:</p>
+<ul>
+  <li>Vastly reduced code size on the frontend.</li>
+  <li>Less processing work to be done by the browser.</li>
+  <li>Simpler interface, with fewer functions available.</li>
+  <li>Smaller traffic size between client and server for each tracking call.</li>
+  <li>Re-use across all channels, Desktop, webapp, epaper, flipboard, future product x.</li>
+  <li>Unified interface means we're quicker to react and make changes.</li>
+  <li>Data can be sent to multiple datamarts; iJento, GA, Splunk etc.</li>
+</ul>
