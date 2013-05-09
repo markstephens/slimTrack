@@ -1,6 +1,6 @@
 var slimTrack = (function() {
     var version = "**SLIMTRACKVERSION**",
-        pageSent = false,
+            pageSent = false,
             defaultOptions = {
         clickID: "t" + (new Date()).valueOf(),
         async: true,
@@ -13,7 +13,7 @@ var slimTrack = (function() {
             options = target;
             target = {};
         }
-        
+
         var name, src, copy;
 
         for (name in options) {
@@ -40,10 +40,10 @@ var slimTrack = (function() {
             options = target;
             target = clone(defaultOptions);
         }
-        
+
         return clone(target, options);
     }
-    
+
     function send(url, options) {
         if (typeof options === "undefined") {
             options = {};
@@ -52,10 +52,10 @@ var slimTrack = (function() {
         options = mergeOptions(options);
 
         var params = clone(options), // Stop issue when deleting params and JS holding objects in reference
-                xmlHttp, async = options.async, callback = options.callback, key, query_string = [];
+                xmlHttp, async = options.async, callback = options.callback, key, query_string = [], sent_url, callback_scope;
         delete params.async;
         delete params.callback;
-        
+
         for (key in params) {
             if (params.hasOwnProperty(key)) {
                 query_string.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]))
@@ -75,21 +75,24 @@ var slimTrack = (function() {
             }
         }
 
+        sent_url = url + '?' + query_string.join('&');
+        callback_scope = {url: sent_url, async: async, params: params};
+
         if (async) {
             xmlHttp.onreadystatechange = function() {
-                callback(xmlHttp);
+                callback.call(callback_scope, xmlHttp);
             };
         }
 
-        xmlHttp.open("GET", url + '?' + query_string.join('&'), async);
+        xmlHttp.open("GET", sent_url, async);
         xmlHttp.send();
         if (!async) {
-            callback(xmlHttp);
+            callback.call(callback_scope, xmlHttp);
         }
     }
 
     function page(options) {
-        if(pageSent) {
+        if (pageSent) {
             throw 'PageTrack already sent';
         }
         send('/page', mergeOptions({async: false}, options));
