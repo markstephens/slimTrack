@@ -5,7 +5,11 @@ var slimTrack = (function() {
         clickID: "t" + (new Date()).valueOf(),
         async: true,
         callback: function() {
-        }
+        },
+        co: window.screen.colorDepth,
+        sr: window.screen.width + 'x' + window.screen.height,
+        lt: (new Date()).toISOString(),
+        referer: document.referrer
     };
 
     function clone(target, options) {
