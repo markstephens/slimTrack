@@ -9,23 +9,26 @@
   </div>
 <% end %>
 <div class="well well-large">
-  <pre><a href="javascript:// Run slimTrack.page();" id="page">slimTrack.page();</a></pre>
-  <pre><a href="javascript:// Run slimTrack.page();" id="ftpage">slimTrack.page({ url : &quot;http://www.ft.com/home/uk&quot; });</a></pre>
-  <div class="time"></div>
-  <pre class="result"></pre>
+  <div>
+    <code><a href="javascript:// Run slimTrack.page();" id="page">slimTrack.page();</a></code>
+    <code><a href="javascript:// Run slimTrack.page();" id="ftpage">slimTrack.page({ url : &quot;http://www.ft.com/home/uk&quot; });</a></code>  
+  </div>
+  <pre><div class="time"></div><div class="result"></div></pre>
 </div>
 
 <div class="well well-large">
-  <pre><a href="javascript:// Run slimTrack.data();" id="data">slimTrack.data({ data : <span class="data-number">&lt;incrementing number&gt;</span> });</a></pre>
-  <pre><a href="javascript:// Run slimTrack.data();" id="data-sync">slimTrack.data({ data : <span class="data-number">&lt;incrementing number&gt;</span>, async: false });</a></pre>
-  <div class="time"></div>
-  <pre class="result"></pre>
+  <div>
+    <code><a href="javascript:// Run slimTrack.data();" id="data">slimTrack.data({ data : <span class="data-number">&lt;incrementing number&gt;</span> });</a></code>
+    <code><a href="javascript:// Run slimTrack.data();" id="data-sync">slimTrack.data({ data : <span class="data-number">&lt;incrementing number&gt;</span>, async: false });</a></code>
+  </div>
+  <pre><div class="time"></div><div class="result"></div></pre>
 </div>
 
 <div class="well well-large">
-  <pre><a href="javascript:// Run slimTrack.event();" id="event">slimTrack.event();</a></pre>
-  <div class="time"></div>
-  <pre class="result"></pre>
+  <div>
+    <code><a href="javascript:// Run slimTrack.event();" id="event">slimTrack.event();</a></code>
+  </div>
+  <pre><div class="time"></div><div class="result"></div></pre>
 </div>
 
 <script src="/latest.min.js"></script>
@@ -36,10 +39,10 @@
 
     $('#page, #ftpage, #data, #data-sync, #event').click(function() {
       var which = $(this).attr('id'),
-              code = $(this).parent().siblings('pre.result'),
-              time = $(this).parent().siblings('.time'),
+              code = $(this).parents('.well').find('.result'),
+              time = $(this).parents('.well').find('.time'),
               callback = function(response) {
-        time.html('<p>URL: ' + this.url + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response time: ' + ((new Date()) - start) + 'msec</p>');
+        time.text('URL: ' + this.url + ' - Response time: ' + ((new Date()) - start) + 'msec');
         code.text(JSON.stringify(response, undefined, 2));
       },
               start = (new Date());
@@ -52,11 +55,11 @@
           slimTrack.page({url: "http://www.ft.com/home/uk", callback: callback});
           break;
         case 'data':
-          slimTrack.data({variable: (data_counter += 1), callback: callback});
+          slimTrack.data({data: (data_counter += 1), callback: callback});
           $('.data-number').text(data_counter);
           break;
         case 'data-sync':
-          slimTrack.data({variable: (data_counter += 1), callback: callback, async: false});
+          slimTrack.data({data: (data_counter += 1), callback: callback, async: false});
           $('.data-number').text(data_counter);
           break;
         case 'event':

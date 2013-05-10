@@ -10,17 +10,23 @@ module FT
       def initialize
         start = Time.now
         
+        print 'Getting tags'
+        
         # Get all tags and remove them from storage (in-case more than one runner running)
         tags = FT::Analytics::pop_tags
+        
+        puts " - #{tags.length} tags"
         
         if tags.length.zero?
           FT::Analytics::log "Nothing to do."
           exit
         end
         
+        puts 'Merging tags'
         # merge similar tags
         tags = tags.merge
         
+        puts 'Adding data'
         # add additional data
         tags.each { |track|
           #begin
@@ -47,6 +53,7 @@ module FT
           # send tags to correct location
         }
         
+        puts "Processed #{tags.length} tags in #{Time.now - start}."
         FT::Analytics::log "Processed #{tags.length} tags in #{Time.now - start}."
       end
             
